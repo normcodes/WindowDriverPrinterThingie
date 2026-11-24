@@ -21,7 +21,7 @@ SetDateSave on
 !define APP_KEY "Software\MX01Bridge"
 !define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\MX01Bridge"
 !define APP_TITLE "MX01 Thermal Printer Bridge"
-!define APP_VERSION "1.4.2"
+!define APP_VERSION "1.4.3"
 
 !define MUI_ABORTWARNING
 !define MUI_DIRECTORYPAGE_TEXT_TOP "Choose the program install root. Setup places MX01 Thermal Printer Bridge in a dedicated subfolder here. The next page lets you choose the separate bridge data folder. Default: C:\Program Files\Printer"
@@ -57,7 +57,7 @@ Page custom DataPageCreate DataPageLeave FreshOnlyPre
 UninstPage uninstConfirm
 UninstPage instfiles
 !insertmacro MUI_LANGUAGE "English"
-VIProductVersion "1.4.2.0"
+VIProductVersion "1.4.3.0"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "MX01 Thermal Printer Bridge"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "MX01 Thermal Printer Bridge Setup"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "Copyright 2026 MX01 Thermal Printer Bridge"

@@ -7,6 +7,8 @@ RequestExecutionLevel admin
 ShowInstDetails show
 SetCompressor /SOLID lzma
 SetCompressorDictSize 32
+; This tiny downloader is fetched over HTTPS; bypass its startup CRC prompt for Windows compatibility.
+CRCCheck off
 
 !include "MUI2.nsh"
 !include "LogicLib.nsh"
