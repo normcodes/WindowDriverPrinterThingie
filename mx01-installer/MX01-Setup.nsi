@@ -21,7 +21,7 @@ SetDateSave on
 !define APP_KEY "Software\MX01Bridge"
 !define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\MX01Bridge"
 !define APP_TITLE "MX01 Thermal Printer Bridge"
-!define APP_VERSION "1.4.3"
+!define APP_VERSION "1.4.4"
 
 !define MUI_ABORTWARNING
 !define MUI_DIRECTORYPAGE_TEXT_TOP "Choose the program install root. Setup places MX01 Thermal Printer Bridge in a dedicated subfolder here. The next page lets you choose the separate bridge data folder. Default: C:\Program Files\Printer"
@@ -57,7 +57,7 @@ Page custom DataPageCreate DataPageLeave FreshOnlyPre
 UninstPage uninstConfirm
 UninstPage instfiles
 !insertmacro MUI_LANGUAGE "English"
-VIProductVersion "1.4.3.0"
+VIProductVersion "1.4.4.0"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "MX01 Thermal Printer Bridge"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "MX01 Thermal Printer Bridge Setup"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "Copyright 2026 MX01 Thermal Printer Bridge"
@@ -75,6 +75,10 @@ Function .onInit
   StrCpy $StartupScope "all"
   ReadRegStr $0 HKLM "${APP_KEY}" "InstallDir"
   ${If} $0 != ""
+    IfFileExists "$0\MX01-Bridge-Manager.ps1" installed_manager_found repair_install
+  installed_manager_found:
+    IfFileExists "$0\runtime\pythonw.exe" installed_files_found repair_install
+  installed_files_found:
     StrCpy $IsInstalled "1"
     StrCpy $INSTDIR $0
     SetOverwrite on
@@ -89,6 +93,7 @@ Function .onInit
     SetShellVarContext all
     CreateDirectory "$SMPROGRAMS\MX01 Thermal Printer Bridge"
     CreateShortcut "$SMPROGRAMS\MX01 Thermal Printer Bridge\MX01 Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"'
+    CreateShortcut "$SMPROGRAMS\MX01 Thermal Printer Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"'
     CreateShortcut "$DESKTOP\MX01 Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"'
     SetShellVarContext current
     WriteRegStr HKLM "${APP_KEY}" "Version" "${APP_VERSION}"
@@ -97,9 +102,22 @@ Function .onInit
     ${If} $1 != ""
       StrCpy $DataDir $1
     ${EndIf}
+    Goto init_done
+  repair_install:
+    StrCpy $IsInstalled "0"
+    ReadRegStr $1 HKLM "${APP_KEY}" "InstallRoot"
+    ${If} $1 != ""
+      StrCpy $INSTDIR $1
+    ${EndIf}
+    ReadRegStr $1 HKLM "${APP_KEY}" "DataDir"
+    ${If} $1 != ""
+      StrCpy $DataDir $1
+    ${EndIf}
+    Goto init_done
   ${Else}
     StrCpy $IsInstalled "0"
   ${EndIf}
+init_done:
 FunctionEnd
 
 Function FindSystemPython
@@ -341,6 +359,7 @@ Section "Install MX01 Thermal Printer Bridge" SEC_MAIN
   SetShellVarContext all
   CreateDirectory "$SMPROGRAMS\MX01 Thermal Printer Bridge"
   CreateShortcut "$SMPROGRAMS\MX01 Thermal Printer Bridge\MX01 Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"'
+  CreateShortcut "$SMPROGRAMS\MX01 Thermal Printer Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"'
   CreateShortcut "$DESKTOP\MX01 Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"'
   CreateShortcut "$SMPROGRAMS\MX01 Thermal Printer Bridge\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 SectionEnd
@@ -356,6 +375,7 @@ Section "Uninstall"
     Pop $ExitCode
   skip_bridge_cleanup:
   Delete "$SMPROGRAMS\MX01 Thermal Printer Bridge\MX01 Bridge Manager.lnk"
+  Delete "$SMPROGRAMS\MX01 Thermal Printer Bridge Manager.lnk"
   Delete "$DESKTOP\MX01 Bridge Manager.lnk"
   Delete "$SMPROGRAMS\MX01 Thermal Printer Bridge\Select MX01 Bluetooth Printer.lnk"
   Delete "$SMPROGRAMS\MX01 Thermal Printer Bridge\Uninstall.lnk"

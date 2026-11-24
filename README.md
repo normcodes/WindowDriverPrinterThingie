@@ -9,7 +9,7 @@ Download and run **MX01-Thermal-Printer-Bridge-Setup.exe** from the [latest GitH
 - Program install root: default `C:\Program Files\Printer`; the application is placed in its dedicated `MX01 Thermal Printer Bridge` subfolder.
 - Bridge data folder: default `C:\ProgramData\Libki\Printer`; it holds settings, the saved printer address, PDF handoff, logs, and print-job history. Uninstall removes this entire selected folder, so choose a dedicated location without unrelated files.
 
-Setup creates the Windows queue named **MX01 Thermal Printer** using the built-in **Microsoft Print to PDF** driver. Fresh installs enable automatic startup for all Windows users by default and start the bridge. A **MX01 Bridge Manager** shortcut is added to the Start menu and desktop; the Manager also opens from setup's finish page.
+Setup creates the Windows queue named **MX01 Thermal Printer** using the built-in **Microsoft Print to PDF** driver. Fresh installs enable automatic startup for all Windows users by default and start the bridge. The Manager is listed directly in Start as **MX01 Thermal Printer Bridge Manager**, is also in the **MX01 Thermal Printer Bridge** Start folder, and has a Desktop shortcut; setup's finish page can open it too. If Setup finds an old install record but the Manager or bundled runtime files are missing, it returns to the installation-path pages rather than showing a misleading maintenance screen. Re-running Setup on a valid existing install recreates the Start and Desktop shortcuts.
 
 ## MX01 Bridge Manager
 
