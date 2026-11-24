@@ -3,6 +3,7 @@ Unicode true
 Name "MX01 Thermal Printer Bridge Setup"
 Caption "MX01 Thermal Printer Bridge Setup"
 OutFile "MX01-Thermal-Printer-Bridge-Setup.exe"
+Icon "mx01-installer/assets/mx01-bridge.ico"
 RequestExecutionLevel admin
 ShowInstDetails show
 SetCompressor /SOLID lzma
@@ -55,10 +56,10 @@ Section "Download and launch MX01 setup"
   Delete "$PayloadPath"
 SectionEnd
 
-VIProductVersion "1.0.0.0"
+VIProductVersion "1.4.5.0"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "MX01 Thermal Printer Bridge Setup"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "Downloads the latest MX01 Bridge installer from GitHub"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "Copyright 2026 MX01 Thermal Printer Bridge"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "1.0.0"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "1.0.0"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "1.4.5"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "1.4.5"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename" "MX01-Thermal-Printer-Bridge-Setup.exe"

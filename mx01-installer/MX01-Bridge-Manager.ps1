@@ -176,6 +176,7 @@ function Set-StatusVisual {
         }
     }
     $connectButton.Visible = -not $Connected
+    $refreshButton.Visible = -not $Connected
 }
 
 function Refresh-BridgeStatus {
@@ -377,6 +378,8 @@ $form.MinimizeBox = $true
 $form.BackColor = $script:Colors.Background
 $form.ForeColor = $script:Colors.Text
 $form.Font = New-Object System.Drawing.Font('Segoe UI',9)
+$iconPath = Join-Path $script:Root 'assets\mx01-bridge.ico'
+if (Test-Path -LiteralPath $iconPath) { $form.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath) }
 
 # Header
 $headerAccent = New-Object System.Windows.Forms.Panel

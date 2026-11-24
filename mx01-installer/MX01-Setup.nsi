@@ -3,6 +3,8 @@ Unicode true
 Name "MX01 Thermal Printer Bridge"
 Caption "MX01 Thermal Printer Bridge Setup"
 OutFile "MX01-Thermal-Printer-Bridge-Payload.exe"
+Icon "mx01-installer/assets/mx01-bridge.ico"
+UninstallIcon "mx01-installer/assets/mx01-bridge.ico"
 InstallDir "C:\Program Files\Printer"
 InstallDirRegKey HKLM "Software\MX01Bridge" "InstallRoot"
 RequestExecutionLevel admin
@@ -21,7 +23,7 @@ SetDateSave on
 !define APP_KEY "Software\MX01Bridge"
 !define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\MX01Bridge"
 !define APP_TITLE "MX01 Thermal Printer Bridge"
-!define APP_VERSION "1.4.4"
+!define APP_VERSION "1.4.5"
 
 !define MUI_ABORTWARNING
 !define MUI_DIRECTORYPAGE_TEXT_TOP "Choose the program install root. Setup places MX01 Thermal Printer Bridge in a dedicated subfolder here. The next page lets you choose the separate bridge data folder. Default: C:\Program Files\Printer"
@@ -43,6 +45,8 @@ Var StatusText
 Var UninstallButton
 Var ManagerButton
 Var RefreshButton
+Var ConnectButton
+Var FinishButton
 Var TempStatus
 Var ExitCode
 
@@ -57,7 +61,7 @@ Page custom DataPageCreate DataPageLeave FreshOnlyPre
 UninstPage uninstConfirm
 UninstPage instfiles
 !insertmacro MUI_LANGUAGE "English"
-VIProductVersion "1.4.4.0"
+VIProductVersion "1.4.5.0"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "MX01 Thermal Printer Bridge"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "MX01 Thermal Printer Bridge Setup"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "Copyright 2026 MX01 Thermal Printer Bridge"
@@ -90,11 +94,12 @@ Function .onInit
     SetOutPath "$INSTDIR\assets"
     File "mx01-installer/assets/test-image.jpg"
     File "mx01-installer/assets/crep.jpeg"
+    File "mx01-installer/assets/mx01-bridge.ico"
     SetShellVarContext all
     CreateDirectory "$SMPROGRAMS\MX01 Thermal Printer Bridge"
-    CreateShortcut "$SMPROGRAMS\MX01 Thermal Printer Bridge\MX01 Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"'
-    CreateShortcut "$SMPROGRAMS\MX01 Thermal Printer Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"'
-    CreateShortcut "$DESKTOP\MX01 Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"'
+    CreateShortcut "$SMPROGRAMS\MX01 Thermal Printer Bridge\MX01 Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"' "$INSTDIR\assets\mx01-bridge.ico"
+    CreateShortcut "$SMPROGRAMS\MX01 Thermal Printer Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"' "$INSTDIR\assets\mx01-bridge.ico"
+    CreateShortcut "$DESKTOP\MX01 Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"' "$INSTDIR\assets\mx01-bridge.ico"
     SetShellVarContext current
     WriteRegStr HKLM "${APP_KEY}" "Version" "${APP_VERSION}"
     WriteRegStr HKLM "${UNINSTALL_KEY}" "DisplayVersion" "${APP_VERSION}"
@@ -198,7 +203,13 @@ Function MaintenanceCreate
   ${NSD_CreateButton} 140u 48u 48u 20u "Refresh"
   Pop $RefreshButton
   ${NSD_OnClick} $RefreshButton OnRefreshClick
-  ${NSD_CreateLabel} 0 78u 100% 30u "Status: checking…"
+  ${NSD_CreateButton} 196u 48u 48u 20u "Connect"
+  Pop $ConnectButton
+  ${NSD_OnClick} $ConnectButton OnOpenManagerClick
+  ${NSD_CreateButton} 81% 78u 19% 20u "Finish"
+  Pop $FinishButton
+  ${NSD_OnClick} $FinishButton OnFinishClick
+  ${NSD_CreateLabel} 0 78u 78% 30u "Status: checking…"
   Pop $StatusLabel
   Call RefreshHealth
   nsDialogs::Show
@@ -251,6 +262,14 @@ Function RefreshHealth
     Delete "$TempStatus"
   status_done:
   ${NSD_SetText} $StatusLabel "Status: $StatusText"
+  StrCpy $0 $StatusText 9
+  ${If} $0 == "CONNECTED"
+    ShowWindow $RefreshButton ${SW_HIDE}
+    ShowWindow $ConnectButton ${SW_HIDE}
+  ${Else}
+    ShowWindow $RefreshButton ${SW_SHOW}
+    ShowWindow $ConnectButton ${SW_SHOW}
+  ${EndIf}
 FunctionEnd
 
 Function OnRefreshClick
@@ -259,6 +278,10 @@ FunctionEnd
 
 Function OnOpenManagerClick
   ExecShell "open" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"'
+FunctionEnd
+
+Function OnFinishClick
+  Quit
 FunctionEnd
 
 Function OnUninstallClick
@@ -293,6 +316,7 @@ Section "Install MX01 Thermal Printer Bridge" SEC_MAIN
   SetOutPath "$INSTDIR\assets"
   File "mx01-installer/assets/test-image.jpg"
   File "mx01-installer/assets/crep.jpeg"
+  File "mx01-installer/assets/mx01-bridge.ico"
   SetOutPath "$INSTDIR\wheels"
   File /r "mx01-installer/wheels\*.*"
 
@@ -358,9 +382,9 @@ Section "Install MX01 Thermal Printer Bridge" SEC_MAIN
   WriteUninstaller "$INSTDIR\uninstall.exe"
   SetShellVarContext all
   CreateDirectory "$SMPROGRAMS\MX01 Thermal Printer Bridge"
-  CreateShortcut "$SMPROGRAMS\MX01 Thermal Printer Bridge\MX01 Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"'
-  CreateShortcut "$SMPROGRAMS\MX01 Thermal Printer Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"'
-  CreateShortcut "$DESKTOP\MX01 Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"'
+  CreateShortcut "$SMPROGRAMS\MX01 Thermal Printer Bridge\MX01 Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"' "$INSTDIR\assets\mx01-bridge.ico"
+  CreateShortcut "$SMPROGRAMS\MX01 Thermal Printer Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"' "$INSTDIR\assets\mx01-bridge.ico"
+  CreateShortcut "$DESKTOP\MX01 Bridge Manager.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File "$INSTDIR\MX01-Bridge-Manager.ps1"' "$INSTDIR\assets\mx01-bridge.ico"
   CreateShortcut "$SMPROGRAMS\MX01 Thermal Printer Bridge\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 SectionEnd
 
@@ -385,6 +409,7 @@ Section "Uninstall"
   Delete "$INSTDIR\mxw01_windows_print_menu.py"
   Delete "$INSTDIR\MX01-Bridge-Manager.ps1"
   Delete "$INSTDIR\Select-MX01-Printer.bat"
+  Delete "$INSTDIR\assets\mx01-bridge.ico"
   Delete "$INSTDIR\uninstall.exe"
   Delete "$INSTDIR\install_dependencies.py"
   RMDir /r "$INSTDIR\runtime"
